@@ -3,12 +3,16 @@
 const kexes = [];
 
 function summarize(data) {
-    const pq = data[1].length;
-    const npq = data[2].length;
-    const unk = data[3].length;
+    const pq = data.pq.length;
+    const npq = data.nonpq.length;
+    const unk = data.unknown.length;
     const tot = pq + npq + unk;
+    const cached = data.cache.length;
+
 
     if (pq == 0 && npq == 0 && unk == 0) {
+        if (cached > 0)
+            return ["unk", "all from cache"];
         return ["unk", "No resources"];
     }
 
@@ -30,34 +34,42 @@ function summarize(data) {
 function classify(kex) {
     switch (kex) {
         case "xyber768d00":
-            return 0;
+            return "pq";
         case "x25519":
         case "P256":
         case "P384":
         case "P521":
-            return 1;
+            return "nonpq";
         default:
-            return 2;
+            return "unknown";
     }
 }
 
 async function logKex(details) {
     const tid = details.tabId;
     if (tid < 0) return;
+    if (details.type === "beacon")
+        return;
     const info = await browser.webRequest.getSecurityInfo(
       details.requestId,
       {},
     );
-    if (details.type === "main_frame")
-        kexes[tid] = [null, [],[],[]];
-    else if (!kexes[tid])
-        kexes[tid] = [null, [],[],[]];
+    if (details.type === "main_frame" || !kexes[tid])
+        kexes[tid] = {
+            summary: null,
+            pq: [],
+            nonpq: [],
+            unknown: [],
+            cache: [],
+        };
     const kex = info.keaGroupName;
-    const tp = classify(kex) + 1;
+    let tp = classify(kex);
+    if (details.fromCache)
+        tp = "cache";
     kexes[tid][tp].push([kex, details.type, details.url]);
 
     const [icon, summary] = summarize(kexes[tid]);
-    kexes[tid][0] = summary;
+    kexes[tid].summary = summary;
 
     browser.browserAction.setIcon({
         tabId: tid,

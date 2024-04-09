@@ -16,11 +16,13 @@ function fill(sel, entries) {
 }
 
 function update(data, tabId) {
-    document.querySelector("#summary").innerText = data[0];
+    document.querySelector("#summary").innerText = data.summary;
+    console.info(data);
     
-    fill("#pq", data[1]);
-    fill("#not-pq", data[2]);
-    fill("#unknown", data[3]);
+    fill("#pq", data.pq);
+    fill("#not-pq", data.nonpq);
+    fill("#unknown", data.unknown);
+    fill("#cache", data.cache);
 }
 
 function pull() {
