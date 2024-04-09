@@ -15,7 +15,7 @@
     "scripts": [ "background.js" ]
   },
   "icons": {
-    "32": "icons/unk-32.png"
+    "32": "icons/unk.png"
   },
   "browser_specific_settings": {
     "gecko": {
