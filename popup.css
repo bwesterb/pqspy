@@ -1,0 +1,17 @@
+body {
+  font: 1rem/2 sans-serif;
+}
+
+table,
+td {
+  border: 1px solid #333;
+  padding: .3rem;
+}
+
+h1 {
+  font-size: 14px;
+}
+
+.hidden {
+   display: none;
+}
