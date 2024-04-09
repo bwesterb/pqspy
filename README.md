@@ -13,3 +13,10 @@ Installation
 2. Click the gear, and then _Debug Add-Ons_.
 3. Press *Load Temporary Add-on*.
 4. Browse to `manifest.json`.
+
+Also don't forget to turn on PQC (Kyber):
+
+5. Go to `about:config` and set `security.tls.enable_kyber` to `true`.
+
+⚠️ As of writing, Firefox does not support PQC over HTTP/3 (yet),
+so you might see false negatives. ⚠️
