@@ -11,7 +11,20 @@ function fill(sel, entries) {
     ul.innerHTML = "";
     for (let entry of entries) {
         let li = document.createElement("li");
-        li.innerText = entry[1] + " " + entry[2] + " (" + entry[0] + ")";
+        let stype = document.createElement("span");
+        stype.innerText = entry[1];
+        stype.classList.add("type");
+        let surl = document.createElement("span");
+        surl.classList.add("url");
+        surl.innerText = entry[2];
+        let skex = document.createElement("span");
+        skex.classList.add("kex");
+        skex.innerText = entry[0];
+        li.append(stype);
+        li.appendChild(document.createTextNode(" "));
+        li.appendChild(skex);
+        li.appendChild(document.createTextNode(" "));
+        li.appendChild(surl);
         ul.appendChild(li);
     }
 }

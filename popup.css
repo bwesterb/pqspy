@@ -1,15 +1,6 @@
 body {
-  font: 1rem/2 sans-serif;
-}
-
-table,
-td {
-  border: 1px solid #333;
-  padding: .3rem;
-}
-
-h1 {
-  font-size: 14px;
+    font: 1rem/2 sans-serif;
+    width: 500px;
 }
 
 .hidden {
@@ -18,4 +9,21 @@ h1 {
 
 #cache {
     color: gray;
+}
+
+ul {
+    font-size: 0.8rem;
+}
+
+li {
+    max-width: 500px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    list-style-position: inside;
+}
+
+li:hover {
+    white-space: normal;
+    overflow: visble;
 }
