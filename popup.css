@@ -13,17 +13,26 @@ body {
 
 ul {
     font-size: 0.8rem;
+    line-height: 1.2;
 }
 
 li {
     max-width: 500px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    list-style-position: inside;
+    padding-bottom: 3px;
 }
 
-li:hover {
+li .url {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+li .url:hover {
     white-space: normal;
     overflow: visble;
+}
+
+.url {
+    color: blue;
 }

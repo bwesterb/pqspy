@@ -21,9 +21,9 @@ function fill(sel, entries) {
         skex.classList.add("kex");
         skex.innerText = entry[0];
         li.append(stype);
-        li.appendChild(document.createTextNode(" "));
+        li.appendChild(document.createTextNode(" using "));
         li.appendChild(skex);
-        li.appendChild(document.createTextNode(" "));
+        li.appendChild(document.createElement("br"));
         li.appendChild(surl);
         ul.appendChild(li);
     }
