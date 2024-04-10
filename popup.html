@@ -8,27 +8,27 @@
   </head>
 
   <body>
-      <div id="summary">Loading ...</div>
+      <div id="summary">Waiting for data ...</div>
 
-      <div id="not-pq" class="hidden">
-      <h1>Not post-quantum secure</h1>
+      <details id="not-pq" class="hidden">
+      <summary><span class="counter">?</span> ❌ Not post-quantum secure</summary>
       <ul />
-      </div>
+      </details>
 
-      <div id="unknown" class="hidden">
-      <h1>Unknown</h1>
+      <details id="unknown" class="hidden">
+      <summary><span class="counter">?</span> ❓ Unknown</summary>
       <ul />
-      </div>
+      </details>
 
-      <div id="pq" class="hidden">
-      <h1>Post-quantum secure</h1>
+      <details id="pq" class="hidden">
+      <summary><span class="counter">?</span> ⚛️  Post-quantum secure</summary>
       <ul />
-      </div>
+      </details>
 
-      <div id="cache" class="hidden">
-      <h1>From cache</h1>
+      <details id="cache" class="hidden">
+      <summary><span class="counter">?</span> From cache</summary>
       <ul />
-      </div>
+      </details>
 
       <script src="popup.js"></script>
   </body>

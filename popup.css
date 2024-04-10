@@ -15,3 +15,7 @@ h1 {
 .hidden {
    display: none;
 }
+
+#cache {
+    color: gray;
+}

@@ -1,6 +1,7 @@
 "use strict";
 
 function fill(sel, entries) {
+    document.querySelector(sel + " .counter").innerText = entries.length;
     if (entries.length == 0) {
         document.querySelector(sel).classList.add("hidden");
     } else {
