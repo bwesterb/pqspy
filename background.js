@@ -62,8 +62,14 @@ async function logKex(details) {
             unknown: [],
             cache: [],
         };
-    const kex = info.keaGroupName;
-    let tp = classify(kex);
+    let kex = info.keaGroupName;
+    let tp;
+    if (info.state === "insecure") {
+        tp = "nonpq";
+        kex = "no encryption";
+    } else {
+        tp = classify(kex);
+    }
     if (details.fromCache)
         tp = "cache";
     kexes[tid][tp].push([kex, details.type, details.url]);
@@ -80,7 +86,7 @@ async function logKex(details) {
 }
 
 browser.webRequest.onHeadersReceived.addListener(logKex,
-  {urls: ["https://*/*"]},
+  {urls: ["*://*/*"]},
   ["blocking"]
 );
 
