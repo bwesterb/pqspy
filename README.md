@@ -16,7 +16,10 @@ Installation
 
 Also don't forget to turn on PQC (Kyber):
 
-5. Go to `about:config` and set `security.tls.enable_kyber` to `true`.
+5. Go to `about:config` and set `security.tls.enable_kyber`
+   (and `network.http.http3.enable_kyber` if present) to `true`.
 
 ⚠️ As of writing, Firefox does not support PQC over HTTP/3 (yet),
 so you might see false negatives. ⚠️
+
+(PQC over HTTP/3 will will land in Firefox 126. Available in nightly.)
