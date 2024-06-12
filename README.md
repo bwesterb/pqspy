@@ -22,4 +22,4 @@ Also don't forget to turn on PQC (Kyber):
 ⚠️ As of writing, Firefox does not support PQC over HTTP/3 (yet),
 so you might see false negatives. ⚠️
 
-(PQC over HTTP/3 will will land in Firefox 126. Available in nightly.)
+(PQC over HTTP/3 will will land in Firefox 128. Available in nightly.)
