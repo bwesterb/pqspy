@@ -19,7 +19,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "62.0b5"
+      "strict_min_version": "62.0"
     }
   }
 }
