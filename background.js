@@ -34,6 +34,7 @@ function summarize(data) {
 function classify(kex) {
     switch (kex) {
         case "xyber768d00":
+        case "mlkem768x25519":
             return "pq";
         case "x25519":
         case "P256":
