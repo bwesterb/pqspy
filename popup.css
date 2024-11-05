@@ -1,14 +1,16 @@
 body {
     font: 1rem/2 sans-serif;
     width: 500px;
+    background: var(--bg);
+    color: var(--text);
 }
 
 .hidden {
-   display: none;
+    display: none;
 }
 
 #cache {
-    color: gray;
+    color: var(--cache);
 }
 
 ul {
@@ -34,5 +36,23 @@ li .url:hover {
 }
 
 .url {
-    color: blue;
+    color: var(--url);
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg: #fff;
+        --text: #000;
+        --cache: #242424;
+        --url: #2f2f2f;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #000;
+        --text: #fff;
+        --cache: #cecece;
+        --url: #a5a5a5;
+    }
 }
