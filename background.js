@@ -31,15 +31,23 @@ function summarize(data) {
     return ["unk", "❓ unknown"];
 }
 
+// Names come from getKeaGroupName() in nsNSSCallbacks.cpp; which of them
+// Firefox offers is set by namedGroups in nsNSSIOLayer.cpp.
 function classify(kex) {
     switch (kex) {
-        case "xyber768d00":
         case "mlkem768x25519":
+        case "mlkem1024":
+        case "xyber768d00":
+        case "secp256r1mlkem768":
+        case "secp384r1mlkem1024":
             return "pq";
         case "x25519":
         case "P256":
         case "P384":
         case "P521":
+        case "FF 2048":
+        case "FF 3072":
+        case "custom":
             return "nonpq";
         default:
             return "unknown";
