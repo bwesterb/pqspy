@@ -1,0 +1,19 @@
+popup.js
+  s_ad8c62ec6f2098::t_46cd3a56b9b10f 46-49,51-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d3e830a455b9fa9eb6646fa343aae565efb997fc",
+  "prompts": {},
+  "sessions": {
+    "s_ad8c62ec6f2098": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_057af3d95ffek8d2t0zj0baG2O",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Bas Westerbaan <bas@cloudflare.com>"
+    }
+  }
+}
