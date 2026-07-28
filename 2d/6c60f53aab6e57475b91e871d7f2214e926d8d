@@ -1,0 +1,19 @@
+manifest.json
+  s_ad8c62ec6f2098::t_c348c0cd54dbcc 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "2d6c60f53aab6e57475b91e871d7f2214e926d8d",
+  "prompts": {},
+  "sessions": {
+    "s_ad8c62ec6f2098": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_057af3d95ffek8d2t0zj0baG2O",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Bas Westerbaan <bas@cloudflare.com>"
+    }
+  }
+}
