@@ -4,7 +4,7 @@ PQSpy
 Firefox extension to quickly check if the webpage you're visiting
 was protected using post-quantum encryption.
 
-<img width="1036" alt="Screenshot 2024-08-21 at 14 23 55" src="https://github.com/user-attachments/assets/48e4050d-3bce-4140-a482-8510a41e7dcc">
+<img width="966" height="850" alt="Screenshot 2026-07-28 at 15 20 08" src="https://github.com/user-attachments/assets/2316cd0a-33fa-4aa1-b89a-52eed751e59c" />
 
 Install from [addons.mozilla.org](https://addons.mozilla.org/en-GB/firefox/addon/pqspy/).
 
