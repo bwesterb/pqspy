@@ -32,15 +32,21 @@ function fill(sel, entries) {
 function update(data, tabId) {
     // Undefined for tabs the background script hasn't seen requests for,
     // for instance after it was restarted.
-    data = data || { summary: "No resources", pq: [], nonpq: [], unknown: [],
-                     cache: [] };
+    data = data || { summary: "No resources", pq: [], nonpq: [], unknown: [] };
 
     document.querySelector("#summary").innerText = data.summary;
 
-    fill("#pq", data.pq);
-    fill("#not-pq", data.nonpq);
-    fill("#unknown", data.unknown);
-    fill("#cache", data.cache);
+    // Cached responses count towards the same totals, but get their own list
+    // so that nothing shows up under two headings at once.
+    const fresh = entries => entries.filter(e => !e[3]);
+    const cached = entries => entries.filter(e => e[3]);
+
+    fill("#pq", fresh(data.pq));
+    fill("#pq-cached", cached(data.pq));
+    fill("#not-pq", fresh(data.nonpq));
+    fill("#not-pq-cached", cached(data.nonpq));
+    fill("#unknown", fresh(data.unknown));
+    fill("#unknown-cached", cached(data.unknown));
 }
 
 async function pull() {

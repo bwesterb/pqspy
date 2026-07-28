@@ -8,9 +8,8 @@ function summarize(data) {
     const unk = data.unknown.length;
     const tot = pq + npq + unk;
 
+    // Cached responses are counted above too, so this really is nothing seen.
     if (tot == 0) {
-        if (data.cache.length > 0)
-            return ["unk", "all from cache"];
         return ["unk", "No resources"];
     }
 
@@ -70,19 +69,28 @@ async function logKex(details) {
             pq: [],
             nonpq: [],
             unknown: [],
-            cache: [],
         };
     let kex = info.keaGroupName;
     let tp;
     if (info.state === "insecure") {
         tp = "nonpq";
         kex = "no encryption";
-    } else {
+    } else if (kex) {
+        // Serialised into the cache entry along with the rest of the security
+        // info, so a cached response says as much about the connection it
+        // first arrived on as a fresh one does.
         tp = classify(kex);
+    } else {
+        // No group to report: a resumed TLS session, for one. Encrypted, but
+        // we can't say with what.
+        tp = "unknown";
+        kex = "unknown key exchange";
     }
-    if (details.fromCache)
-        tp = "cache";
-    kexes[tid][tp].push([kex, details.type, details.url]);
+
+    // Cached or not is a property of the response, not a bucket of its own:
+    // it still counts towards the totals, and the popup splits the lists on
+    // this flag so nothing gets listed twice.
+    kexes[tid][tp].push([kex, details.type, details.url, details.fromCache]);
 
     const [icon, summary] = summarize(kexes[tid]);
     kexes[tid].summary = summary;

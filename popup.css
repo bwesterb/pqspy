@@ -9,8 +9,8 @@ body {
     display: none;
 }
 
-#cache {
-    color: var(--cache);
+.cached {
+    color: var(--cached);
 }
 
 ul {
@@ -43,7 +43,7 @@ li .url:hover {
     :root {
         --bg: #fff;
         --text: #000;
-        --cache: #242424;
+        --cached: #242424;
         --url: #2f2f2f;
     }
 }
@@ -52,7 +52,7 @@ li .url:hover {
     :root {
         --bg: #000;
         --text: #fff;
-        --cache: #cecece;
+        --cached: #cecece;
         --url: #a5a5a5;
     }
 }
