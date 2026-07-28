@@ -1,0 +1,21 @@
+popup.css
+  s_ad8c62ec6f2098::t_f2c01abfd0970b 12-13,46,55
+popup.html
+  s_ad8c62ec6f2098::t_a1a72697cd110b 18-22,28-32,38-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b2b92f15b02bcfb818e4262f38d1c0a7c21a16c4",
+  "prompts": {},
+  "sessions": {
+    "s_ad8c62ec6f2098": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_057af3d95ffek8d2t0zj0baG2O",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Bas Westerbaan <bas@cloudflare.com>"
+    }
+  }
+}
