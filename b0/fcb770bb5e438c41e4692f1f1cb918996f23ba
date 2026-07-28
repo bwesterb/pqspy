@@ -1,0 +1,19 @@
+background.js
+  s_ad8c62ec6f2098::t_74f9a894174035 3-6,154,165,175,253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b0fcb770bb5e438c41e4692f1f1cb918996f23ba",
+  "prompts": {},
+  "sessions": {
+    "s_ad8c62ec6f2098": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_057af3d95ffek8d2t0zj0baG2O",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Bas Westerbaan <bas@cloudflare.com>"
+    }
+  }
+}
