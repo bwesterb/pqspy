@@ -7,28 +7,29 @@ function summarize(data) {
     const npq = data.nonpq.length;
     const unk = data.unknown.length;
     const tot = pq + npq + unk;
-    const cached = data.cache.length;
 
-
-    if (pq == 0 && npq == 0 && unk == 0) {
-        if (cached > 0)
+    if (tot == 0) {
+        if (data.cache.length > 0)
             return ["unk", "all from cache"];
         return ["unk", "No resources"];
     }
 
-    if (pq > 0 && npq == 0 && unk == 0) {
-        return ["yes", "⚛️  post-quantum encrypted"];
+    // Nothing we recognised either way, so we can't claim it isn't
+    // post-quantum. Has to come before the pq == 0 case below.
+    if (pq == 0 && npq == 0) {
+        return ["unk", "❓ unknown"];
     }
 
     if (pq == 0) {
         return ["no", "❌ not post-quantum encrypted"];
     }
 
-    if (pq > 0 && npq > 0) {
-        return ["warn", "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + ")"];
+    if (npq == 0 && unk == 0) {
+        return ["yes", "⚛️  post-quantum encrypted"];
     }
 
-    return ["unk", "❓ unknown"];
+    // Some of it is, but not all.
+    return ["warn", "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + ")"];
 }
 
 // Names come from getKeaGroupName() in nsNSSCallbacks.cpp; which of them
