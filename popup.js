@@ -43,13 +43,16 @@ function update(data, tabId) {
     fill("#cache", data.cache);
 }
 
-function pull() {
-    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tid = tabs[0].id;
-        browser.runtime.sendMessage({ action: "pqspy", tabId: tid }, response => {
-            update(response, tid);
-        });
+async function pull() {
+    const tabs = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
     });
+    const tid = tabs[0].id;
+    update(await browser.runtime.sendMessage({
+        action: "pqspy",
+        tabId: tid,
+    }), tid);
 }
 
 pull();
