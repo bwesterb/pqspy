@@ -5,7 +5,7 @@
   "version": "0.1.2",
   "browser_action": {
     "default_icon": {
-      "32": "icons/unk.png"
+      "114": "icons/unk.png"
     },
     "default_title": "PQSpy",
     "default_popup": "popup.html"
@@ -15,7 +15,7 @@
     "scripts": [ "background.js" ]
   },
   "icons": {
-    "32": "icons/yes.png"
+    "114": "icons/yes.png"
   },
   "browser_specific_settings": {
     "gecko": {

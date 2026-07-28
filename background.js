@@ -89,7 +89,7 @@ async function logKex(details) {
     browser.browserAction.setIcon({
         tabId: tid,
         path: {
-            32: "icons/" + icon + ".png",
+            114: "icons/" + icon + ".png",
         }
     });
 }
