@@ -293,6 +293,16 @@ browser.tabs.onRemoved.addListener(function(tid, info) {
     delete kexes[tid];
 });
 
+// The icon set while the main frame's headers were in flight gets dropped
+// again when the navigation commits. Usually a subresource comes along and
+// sets it back, but a page that requests nothing else -- an image opened on
+// its own, say -- would be left showing the default.
+browser.tabs.onUpdated.addListener(function(tid, info) {
+    if (info.status !== "complete" || !kexes[tid])
+        return;
+    showIcon(tid, summarize(kexes[tid])[0], kexes[tid]);
+});
+
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "pqspy") {
     sendResponse(kexes[message.tabId]);
