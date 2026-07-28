@@ -30,9 +30,13 @@ function fill(sel, entries) {
 }
 
 function update(data, tabId) {
+    // Undefined for tabs the background script hasn't seen requests for,
+    // for instance after it was restarted.
+    data = data || { summary: "No resources", pq: [], nonpq: [], unknown: [],
+                     cache: [] };
+
     document.querySelector("#summary").innerText = data.summary;
-    console.info(data);
-    
+
     fill("#pq", data.pq);
     fill("#not-pq", data.nonpq);
     fill("#unknown", data.unknown);
