@@ -1,0 +1,21 @@
+background.js
+  s_ad8c62ec6f2098::t_0094fa09f0dc73 3-7,34,61-231,272-284
+manifest.json
+  s_ad8c62ec6f2098::t_e45f941f287933 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a94972220552dcb3d33eda01d3afd22e011b90d9",
+  "prompts": {},
+  "sessions": {
+    "s_ad8c62ec6f2098": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_057af3d95ffek8d2t0zj0baG2O",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Bas Westerbaan <bas@cloudflare.com>"
+    }
+  }
+}
