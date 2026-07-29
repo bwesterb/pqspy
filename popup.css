@@ -22,12 +22,13 @@ summary {
     cursor: pointer;
 }
 
-/* Fixed width, so the verdicts line up in a column of their own however many
-   digits precede them. */
+/* Wide enough for the hundreds a busy page reaches, and tabular so the digits
+   themselves don't shift, keeping the verdicts in a column of their own. */
 .counter {
     display: inline-block;
-    min-width: 1.4em;
+    min-width: 3ch;
     text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 .cached {
