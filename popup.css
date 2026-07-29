@@ -1,12 +1,33 @@
+/* Padding inside the 500px rather than on top of it, so the lists below can
+   still measure themselves against the full width. */
 body {
-    font: 1rem/2 sans-serif;
+    font: 1rem/1.6 sans-serif;
     width: 500px;
+    box-sizing: border-box;
+    padding: 0.75rem;
     background: var(--bg);
     color: var(--text);
 }
 
 .hidden {
     display: none;
+}
+
+#summary {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+summary {
+    cursor: pointer;
+}
+
+/* Fixed width, so the verdicts line up in a column of their own however many
+   digits precede them. */
+.counter {
+    display: inline-block;
+    min-width: 1.4em;
+    text-align: right;
 }
 
 .cached {
@@ -19,7 +40,7 @@ ul {
 }
 
 li {
-    max-width: 500px;
+    max-width: 100%;
     padding-bottom: 3px;
 }
 
@@ -39,6 +60,10 @@ li .url:hover {
     color: var(--url);
 }
 
+.kex {
+    font-family: monospace;
+}
+
 #page {
     font-size: 0.9rem;
     line-height: 1.4;
@@ -49,6 +74,8 @@ li .url:hover {
     font-size: 0.8rem;
     line-height: 1.4;
     margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--rule);
     color: var(--footnote);
 }
 
@@ -61,20 +88,22 @@ li .url:hover {
 
 @media (prefers-color-scheme: light) {
     :root {
-        --bg: #fff;
-        --text: #000;
+        --bg: #fbfbfe;
+        --text: #15141a;
         --cached: #242424;
         --url: #2f2f2f;
         --footnote: #4a4a4a;
+        --rule: #dedede;
     }
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #000;
-        --text: #fff;
+        --bg: #1c1b22;
+        --text: #fbfbfe;
         --cached: #cecece;
         --url: #a5a5a5;
         --footnote: #9a9a9a;
+        --rule: #3a3945;
     }
 }
