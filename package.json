@@ -1,0 +1,13 @@
+{
+  "name": "pqspy",
+  "private": true,
+  "description": "Tooling to build and publish the PQSpy add-on; the extension itself is plain JS.",
+  "scripts": {
+    "build": "web-ext build --overwrite-dest",
+    "lint": "web-ext lint",
+    "release": "./release.sh"
+  },
+  "devDependencies": {
+    "web-ext": "^10.5.0"
+  }
+}
