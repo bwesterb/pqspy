@@ -39,12 +39,27 @@ li .url:hover {
     color: var(--url);
 }
 
+#caveat {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-top: 1rem;
+    color: var(--footnote);
+}
+
+/* Inherited rather than the default link blue, which is unreadable on the
+   dark background. */
+#caveat a {
+    color: inherit;
+    text-decoration: underline;
+}
+
 @media (prefers-color-scheme: light) {
     :root {
         --bg: #fff;
         --text: #000;
         --cached: #242424;
         --url: #2f2f2f;
+        --footnote: #4a4a4a;
     }
 }
 
@@ -54,5 +69,6 @@ li .url:hover {
         --text: #fff;
         --cached: #cecece;
         --url: #a5a5a5;
+        --footnote: #9a9a9a;
     }
 }
