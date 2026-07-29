@@ -36,6 +36,9 @@ function update(data, tabId) {
 
     document.querySelector("#summary").innerText = data.summary;
 
+    document.querySelector("#page").classList.toggle(
+        "hidden", data.main !== "nonpq");
+
     // Cached responses count towards the same totals, but get their own list
     // so that nothing shows up under two headings at once.
     const fresh = entries => entries.filter(e => !e[3]);

@@ -31,12 +31,10 @@ function summarize(data) {
         return ["yes", "⚛️  post-quantum encrypted"];
     }
 
-    if (data.main === "nonpq") {
-        return ["no", "❌ page not post-quantum encrypted (" + pq + "/" + tot + " ⚛️)"];
-    }
-
-    // Some of it is, so the icon becomes a pie chart of the proportions.
-    return ["warn", "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + " ⚛️)"];
+    // Some of it is, so the icon becomes a pie chart of the proportions --
+    // unless the page itself isn't, which the popup spells out.
+    return [data.main === "nonpq" ? "no" : "warn",
+            "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + ")"];
 }
 
 // Names come from getKeaGroupName() in nsNSSCallbacks.cpp; which of them
