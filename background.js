@@ -31,8 +31,12 @@ function summarize(data) {
         return ["yes", "⚛️  post-quantum encrypted"];
     }
 
+    if (data.main === "nonpq") {
+        return ["no", "❌ page not post-quantum encrypted (" + pq + "/" + tot + " ⚛️)"];
+    }
+
     // Some of it is, so the icon becomes a pie chart of the proportions.
-    return ["warn", "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + ")"];
+    return ["warn", "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + " ⚛️)"];
 }
 
 // Names come from getKeaGroupName() in nsNSSCallbacks.cpp; which of them
@@ -240,6 +244,7 @@ async function record(details) {
     if (details.type === "main_frame" || !kexes[tid])
         kexes[tid] = {
             summary: null,
+            main: null,
             pq: [],
             nonpq: [],
             unknown: [],
@@ -265,6 +270,9 @@ async function record(details) {
     // it still counts towards the totals, and the popup splits the lists on
     // this flag so nothing gets listed twice.
     kexes[tid][tp].push([kex, details.type, details.url, details.fromCache]);
+
+    if (details.type === "main_frame")
+        kexes[tid].main = tp;
 
     const [icon, summary] = summarize(kexes[tid]);
     kexes[tid].summary = summary;
