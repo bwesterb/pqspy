@@ -35,6 +35,47 @@ summary {
     color: var(--cached);
 }
 
+#jwt-bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+#jwt-summary {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+#jwt-rescan {
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 0.1rem 0.5rem;
+}
+
+.jwt-id {
+    font-family: monospace;
+    color: var(--footnote);
+}
+
+/* The per-token location trails, nested under each JWT list item. */
+ul.jwt-locs {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.15rem 0 0.35rem;
+}
+
+.jwt-more {
+    color: var(--footnote);
+    font-style: italic;
+}
+
 ul {
     font-size: 0.8rem;
     line-height: 1.2;
@@ -71,7 +112,33 @@ li .url:hover {
     margin-bottom: 0.5rem;
 }
 
-#caveat {
+/* Tab strip across the top; sits on the same rule the footers use below. */
+#tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+}
+
+.tab {
+    font: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--footnote);
+    padding: 0.35rem 0.6rem;
+    margin-bottom: -1px;
+}
+
+.tab.active {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom-color: var(--text);
+}
+
+#caveat, #jwt-caveat {
     font-size: 0.8rem;
     line-height: 1.4;
     margin-top: 1rem;
@@ -80,9 +147,17 @@ li .url:hover {
     color: var(--footnote);
 }
 
+/* The JWT tab has nothing above its footer yet, so drop the top margin that
+   would otherwise leave it floating below the tab strip. */
+#panel-jwts #jwt-caveat {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 0;
+}
+
 /* Inherited rather than the default link blue, which is unreadable on the
    dark background. */
-#caveat a {
+#caveat a, #jwt-caveat a {
     color: inherit;
     text-decoration: underline;
 }
