@@ -10,10 +10,18 @@
     "default_title": "PQSpy",
     "default_popup": "popup.html"
   },
-  "permissions": ["tabs", "webRequest", "webRequestBlocking", "<all_urls>"],
+  "permissions": ["tabs", "cookies", "webRequest", "webRequestBlocking", "<all_urls>"],
   "background": {
-    "scripts": [ "background.js" ]
+    "scripts": [ "jwt.js", "background.js" ]
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [ "jwt.js", "content.js" ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
   "icons": {
     "114": "icons/yes.png"
   },
