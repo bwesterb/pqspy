@@ -57,9 +57,6 @@ function describe(s) {
         case "req-header":
             return "Network \u25b8 " + s.url +
                    " \u25b8 Request Headers \u25b8 " + s.where;
-        case "resp-header":
-            return "Network \u25b8 " + s.url +
-                   " \u25b8 Response Headers \u25b8 " + s.where;
         case "url":
             return "URL \u25b8 " + s.where;
         default:
@@ -191,36 +188,39 @@ async function pull() {
 
 // Ask the active tab's content script to re-read its storage and URL, and the
 // background to re-read the tab's cookie jar (which the content script can't
-// reach), then pull the refreshed data.
-function setupRescan() {
-    document.querySelector("#jwt-rescan").addEventListener("click", async () => {
-        const tabs = await browser.tabs.query({
-            active: true,
-            currentWindow: true,
-        });
-        const tid = tabs[0].id;
-
-        // Cookies: handled in the background, which replies when done.
-        const cookies = browser.runtime.sendMessage({
-            action: "jwt-rescan-cookies",
-            tabId: tid,
-            url: tabs[0].url,
-        }).catch(() => {});
-
-        // Storage and URL: handled by the content script, which reports back
-        // asynchronously, so give it a moment before re-pulling.
-        try {
-            await browser.tabs.sendMessage(tid, { action: "jwt-rescan" });
-        } catch (e) {
-            // No content script on this page (e.g. about: pages); nothing to
-            // rescan there, just refresh from what the background has.
-        }
-
-        await cookies;
-        setTimeout(pull, 150);
+// reach), then pull the refreshed data. Run on popup open so the JWT view is
+// fresh without the user having to ask for it.
+async function rescan() {
+    const tabs = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
     });
+    const tid = tabs[0].id;
+
+    // Cookies: handled in the background, which replies when done.
+    const cookies = browser.runtime.sendMessage({
+        action: "jwt-rescan-cookies",
+        tabId: tid,
+        url: tabs[0].url,
+    }).catch(() => {});
+
+    // Storage and URL: handled by the content script. Its listener
+    // returns the report's promise, so awaiting sendMessage here waits
+    // until the findings have reached the background (whose handler is
+    // synchronous) -- no need to guess with a timer.
+    try {
+        await browser.tabs.sendMessage(tid, { action: "jwt-rescan" });
+    } catch (e) {
+        // No content script on this page (e.g. about: pages); nothing to
+        // rescan there, just refresh from what the background has.
+    }
+
+    await cookies;
+    await pull();
 }
 
 setupTabs();
-setupRescan();
+// Paint immediately from what the background already has, then kick off a
+// rescan whose own pull() lands a moment later with fresh storage/URL/cookies.
 pull();
+rescan();

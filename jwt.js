@@ -82,6 +82,13 @@ const PQSpyJWT = (function () {
         }
         if (!header || typeof header !== "object" || !("alg" in header))
             return null;
+        // A five-segment JWE also starts with three base64url segments, so
+        // CANDIDATE matches its first three and the header parses -- but its
+        // "alg" names a key-management scheme, not a signature. The "enc"
+        // member is what marks it a JWE; skip those, we only classify the
+        // signatures of signed JWTs (JWS).
+        if ("enc" in header)
+            return null;
         const alg = String(header.alg);
         return { id: identify(token), alg, bucket: classifySig(alg) };
     }

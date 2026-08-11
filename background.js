@@ -14,14 +14,12 @@ const jwts = {};
 
 // Request headers we're willing to look inside; matched case-insensitively.
 // Deliberately a short allow-list rather than every header, to keep false
-// positives down.
+// positives down. Cookie headers are deliberately left out: scanCookies reads
+// the jar directly, which gives real cookie names (a Cookie header only lists
+// name=value pairs we'd have to re-parse) and also sees HttpOnly cookies.
 const jwtRequestHeaders = new Set([
     "authorization",
     "proxy-authorization",
-    "cookie",
-]);
-const jwtResponseHeaders = new Set([
-    "set-cookie",
 ]);
 
 function freshJwts(tid) {
@@ -47,18 +45,31 @@ function originOf(url) {
     }
 }
 
+// A URL stripped to origin + pathname, dropping the query string. Header
+// locations point at a Network entry, which is identified by its path; the
+// query is not needed for that and a token can ride in a query parameter, so
+// keeping it would store the very token we promise never to keep.
+function pathOf(url) {
+    try {
+        const u = new URL(url);
+        return u.origin + u.pathname;
+    } catch (e) {
+        return url || "";
+    }
+}
+
 // Fold a found token into the tab's map, adding where it was seen to an
 // existing record rather than listing the same token twice. Only the
 // identifier, algorithm, bucket, and locations are kept -- never the token.
 // A location carries enough to point the user at it in DevTools: the source
 // kind, the header/cookie/storage name (where), and the request or page URL.
 //
-// Headers keep the full request URL: each request is a distinct, separately
-// inspectable Network entry. But a cookie rides on every request to its
-// domain, so keeping per-request URLs would list the same cookie dozens of
-// times over -- once per URL -- even though the popup only ever shows its
-// origin. So for cookies, storage, and the URL bar we reduce to the origin,
-// which collapses those to one row per name per origin.
+// Headers keep the request URL (minus its query, see pathOf): each request is
+// a distinct, separately inspectable Network entry. But a cookie rides on
+// every request to its domain, so keeping per-request URLs would list the same
+// cookie dozens of times over -- once per URL -- even though the popup only
+// ever shows its origin. So for cookies, storage, and the URL bar we reduce to
+// the origin, which collapses those to one row per name per origin.
 function recordJwt(tid, jwt, loc) {
     const map = freshJwts(tid);
     let rec = map.get(jwt.id);
@@ -72,9 +83,9 @@ function recordJwt(tid, jwt, loc) {
         };
         map.set(jwt.id, rec);
     }
-    const perRequest = loc.source === "req-header" ||
-                       loc.source === "resp-header";
-    if (!perRequest)
+    if (loc.source === "req-header")
+        loc = Object.assign({}, loc, { url: pathOf(loc.url) });
+    else
         loc = Object.assign({}, loc, { url: originOf(loc.url) });
     const dup = rec.sources.some(s =>
         s.source === loc.source && s.where === loc.where && s.url === loc.url);
@@ -113,17 +124,15 @@ async function scanCookies(tid, url) {
     }
 }
 
-// source is "req-header" or "resp-header"; a Cookie/Set-Cookie header is
-// relabelled "cookie" so the popup can point at the Cookies panel instead.
+// source is "req-header"; the token's location is the header it rode in.
 function scanHeaders(tid, headers, allow, source, url, detail) {
     if (!headers) return;
     for (const h of headers) {
         if (!allow.has(h.name.toLowerCase()))
             continue;
         for (const jwt of PQSpyJWT.scan(h.value)) {
-            const kind = /cookie/i.test(h.name) ? "cookie" : source;
             recordJwt(tid, jwt, {
-                source: kind,
+                source,
                 where: h.name,
                 url,
                 detail,
@@ -364,6 +373,7 @@ async function record(details) {
     if (tid < 0) return;
     if (details.type === "beacon")
         return;
+
     const info = await browser.webRequest.getSecurityInfo(
       details.requestId,
       {},
@@ -376,13 +386,6 @@ async function record(details) {
             nonpq: [],
             unknown: [],
         };
-    // A new top-level page is a new set of JWTs; the content script will
-    // re-report storage and URL tokens once it loads.
-    if (details.type === "main_frame")
-        jwts[tid] = new Map();
-
-    scanHeaders(tid, details.responseHeaders, jwtResponseHeaders,
-        "resp-header", details.url, details.method);
     let kex = info.keaGroupName;
     let tp;
     if (info.state === "insecure") {
@@ -428,17 +431,23 @@ async function logKex(details) {
 
 browser.webRequest.onHeadersReceived.addListener(logKex,
   {urls: ["*://*/*"]},
-  ["blocking", "responseHeaders"]
+  ["blocking"]
 );
 
-// Outgoing request headers carry the Authorization/Cookie tokens. Read-only
-// for our purposes, but the listener still has to be registered blocking to
-// be handed requestHeaders.
+// Outgoing request headers carry the Authorization tokens. Read-only for our
+// purposes, but the listener still has to be registered blocking to be handed
+// requestHeaders.
 browser.webRequest.onBeforeSendHeaders.addListener(function(details) {
     const tid = details.tabId;
     if (tid < 0 || details.type === "beacon")
         return;
     try {
+        // A new top-level page is a new set of JWTs; reset before scanning
+        // this request so the navigation's own Authorization header lands in
+        // the fresh map rather than being wiped by a later reset. The content
+        // script will re-report storage and URL tokens once it loads.
+        if (details.type === "main_frame")
+            jwts[tid] = new Map();
         scanHeaders(tid, details.requestHeaders, jwtRequestHeaders,
             "req-header", details.url, details.method);
     } catch (e) {
@@ -496,8 +505,10 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // The popup's Rescan asks us to re-read the tab's cookie jar, which the
   // content script can't reach. Answer once the scan is done so the popup
-  // knows when to re-pull.
-  if (message.action === "jwt-rescan-cookies") {
+  // knows when to re-pull. This trusts message.tabId/message.url, so it must
+  // only come from the popup: a page's content script has a sender.tab and
+  // could otherwise steer cookie reads into another tab's map.
+  if (message.action === "jwt-rescan-cookies" && !sender.tab) {
     scanCookies(message.tabId, message.url).then(() => sendResponse(true));
     return true;
   }

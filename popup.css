@@ -36,27 +36,12 @@ summary {
 }
 
 #jwt-bar {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
     margin-bottom: 0.25rem;
 }
 
 #jwt-summary {
     font-size: 1.15rem;
     font-weight: 600;
-}
-
-#jwt-rescan {
-    font: inherit;
-    font-size: 0.8rem;
-    cursor: pointer;
-    background: none;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    color: var(--text);
-    padding: 0.1rem 0.5rem;
 }
 
 .jwt-id {

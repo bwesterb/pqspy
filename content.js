@@ -8,8 +8,11 @@
 (function () {
     function report(found) {
         if (!found.length)
-            return;
-        browser.runtime.sendMessage({ action: "jwt-report", found })
+            return Promise.resolve();
+        // Returned so callers can await the report reaching the background.
+        // The background's jwt-report handler is synchronous, so once this
+        // resolves the findings are recorded.
+        return browser.runtime.sendMessage({ action: "jwt-report", found })
             .catch(() => {
                 // Background may be momentarily unavailable; nothing to do.
             });
@@ -57,15 +60,16 @@
         try { fromStorage(localStorage, "localStorage", found); } catch (e) {}
         try { fromStorage(sessionStorage, "sessionStorage", found); } catch (e) {}
         fromUrl(found);
-        report(found);
+        return report(found);
     }
 
     scan();
 
-    // The popup's Rescan button reaches the page through here, since storage
-    // written after load isn't observable from the same document otherwise.
+    // Returning the scan's promise makes tabs.sendMessage in the popup resolve
+    // only once the report has reached the background, so the popup can pull
+    // fresh data without racing the report.
     browser.runtime.onMessage.addListener((message) => {
         if (message && message.action === "jwt-rescan")
-            scan();
+            return scan();
     });
 })();
