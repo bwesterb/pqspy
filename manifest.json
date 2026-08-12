@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "PQSpy",
   "description": "Shows whether the connection was protected with post-quantum encryption",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "browser_action": {
     "default_icon": {
       "114": "icons/unk.png"
