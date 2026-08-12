@@ -252,6 +252,21 @@ async function record(details) {
     if (info.state === "insecure") {
         tp = "nonpq";
         kex = "no encryption";
+        // An https response without TLS info shouldn't happen: not from the
+        // network, not from the cache, and not from a service worker.
+        // It has been reported regardless, so add some debugging information
+        // in the popup in this case, so a future bug report will be more
+        // helpful.
+        if (details.url.startsWith("https:")) {
+            kex += " (cache=" + (details.fromCache ? 1 : 0)
+                + " status=" + details.statusCode
+                + (details.ip ? " ip=" + details.ip : " no-ip")
+                + (details.proxyInfo && details.proxyInfo.type !== "direct"
+                    ? " proxy=" + details.proxyInfo.type : "")
+                + ")";
+            console.warn("PQSpy: https response without TLS info:",
+                details, info);
+        }
     } else if (kex) {
         // Serialised into the cache entry along with the rest of the security
         // info, so a cached response says as much about the connection it
