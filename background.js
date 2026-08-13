@@ -7,6 +7,9 @@
 const kexes = {};
 
 function summarize(data) {
+    // Also part of pq (see record()); tracked separately for the caveat
+    // below.
+    const solo = data["pq-solo"].length;
     const pq = data.pq.length;
     const npq = data.nonpq.length;
     const unk = data.unknown.length;
@@ -27,26 +30,39 @@ function summarize(data) {
         return ["no", "❌ not post-quantum encrypted"];
     }
 
+   // Non-hybrid PQ has no classical fallback, so it's called out
+   // separately rather than folded into the plain verdict.
+    const caveat = solo > 0
+        ? " (" + solo + "/" + pq + " PQ resources have no classical fallback)"
+        : "";
+
     if (npq == 0 && unk == 0) {
-        return ["yes", "⚛️  post-quantum encrypted"];
+        return ["yes", "⚛️  post-quantum encrypted" + caveat];
     }
 
     // Some of it is, so the icon becomes a pie chart of the proportions --
     // unless the page itself isn't, which the popup spells out.
     return [data.main === "nonpq" ? "no" : "warn",
-            "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + ")"];
+            "⚠️  partially post-quantum encrypted (" + pq + "/" + tot + ")" + caveat];
 }
+
+// A post-quantum KEM combined with a classical ECDHE share.
+const hybridPq = new Set([
+    "mlkem768x25519", "xyber768d00", "secp256r1mlkem768", "secp384r1mlkem1024",
+]);
+
+// Post-quantum alone. draft-ietf-tls-mlkem defines these as
+// standalone groups.
+const nonHybridPq = new Set(["mlkem512", "mlkem768", "mlkem1024"]);
 
 // Names come from getKeaGroupName() in nsNSSCallbacks.cpp; which of them
 // Firefox offers is set by namedGroups in nsNSSIOLayer.cpp.
 function classify(kex) {
+    if (hybridPq.has(kex))
+        return "pq";
+    if (nonHybridPq.has(kex))
+        return "pq-solo";
     switch (kex) {
-        case "mlkem768x25519":
-        case "mlkem1024":
-        case "xyber768d00":
-        case "secp256r1mlkem768":
-        case "secp384r1mlkem1024":
-            return "pq";
         case "x25519":
         case "P256":
         case "P384":
@@ -244,6 +260,7 @@ async function record(details) {
             summary: null,
             main: null,
             pq: [],
+            "pq-solo": [],
             nonpq: [],
             unknown: [],
         };
@@ -282,7 +299,13 @@ async function record(details) {
     // Cached or not is a property of the response, not a bucket of its own:
     // it still counts towards the totals, and the popup splits the lists on
     // this flag so nothing gets listed twice.
-    kexes[tid][tp].push([kex, details.type, details.url, details.fromCache]);
+    //
+    // pq-solo counts as pq for the icon and pie, but is also kept separately
+    // so summarize() can mention the missing fallback.
+    const bucket = tp === "pq-solo" ? "pq" : tp;
+    kexes[tid][bucket].push([kex, details.type, details.url, details.fromCache]);
+    if (tp === "pq-solo")
+        kexes[tid]["pq-solo"].push(kex);
 
     if (details.type === "main_frame")
         kexes[tid].main = tp;
