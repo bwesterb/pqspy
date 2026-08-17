@@ -8,6 +8,15 @@
   </head>
 
   <body>
+      <div id="tabs" role="tablist">
+      <button id="tab-encryption" class="tab active" role="tab"
+              aria-selected="true" aria-controls="panel-encryption">Encryption</button>
+      <button id="tab-jwts" class="tab" role="tab"
+              aria-selected="false" aria-controls="panel-jwts">JWTs</button>
+      </div>
+
+      <section id="panel-encryption" class="panel" role="tabpanel"
+               aria-labelledby="tab-encryption">
       <div id="summary">Waiting for data ...</div>
       <div id="page" class="hidden">❌ the page itself is not post-quantum encrypted</div>
 
@@ -49,6 +58,36 @@
       <a href="https://github.com/bwesterb/pqspy/issues/4"
          target="_blank">yet</a>.
       </footer>
+      </section>
+
+      <section id="panel-jwts" class="panel hidden" role="tabpanel"
+               aria-labelledby="tab-jwts">
+      <div id="jwt-bar">
+        <span id="jwt-summary">Waiting for data ...</span>
+      </div>
+
+      <details id="jwt-pq" class="hidden">
+      <summary><span class="counter">?</span> ⚛️  post-quantum secure</summary>
+      <ul></ul>
+      </details>
+
+      <details id="jwt-not-pq" class="hidden">
+      <summary><span class="counter">?</span> ❌ not post-quantum secure</summary>
+      <ul></ul>
+      </details>
+
+      <details id="jwt-unknown" class="hidden">
+      <summary><span class="counter">?</span> ❓ unknown</summary>
+      <ul></ul>
+      </details>
+
+      <footer id="jwt-caveat">
+      This tab reports the
+      <a href="https://en.wikipedia.org/wiki/JSON_Web_Token"
+         target="_blank">JSON Web Tokens</a> seen in this tab's request
+      headers, cookies, URL, and web storage.
+      </footer>
+      </section>
 
       <script src="popup.js"></script>
   </body>
