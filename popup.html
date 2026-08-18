@@ -18,6 +18,7 @@
       <section id="panel-encryption" class="panel" role="tabpanel"
                aria-labelledby="tab-encryption">
       <div id="summary">Waiting for data ...</div>
+      <div id="note" class="note hidden"></div>
       <div id="page" class="hidden">❌ the page itself is not post-quantum encrypted</div>
 
       <details id="not-pq" class="hidden">
@@ -65,6 +66,7 @@
       <div id="jwt-bar">
         <span id="jwt-summary">Waiting for data ...</span>
       </div>
+      <div id="jwt-note" class="note hidden"></div>
 
       <details id="jwt-pq" class="hidden">
       <summary><span class="counter">?</span> ⚛️  post-quantum secure</summary>
@@ -89,6 +91,7 @@
       </footer>
       </section>
 
+      <script src="restricted.js"></script>
       <script src="popup.js"></script>
   </body>
 </html>

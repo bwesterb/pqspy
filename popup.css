@@ -97,6 +97,16 @@ li .url:hover {
     margin-bottom: 0.5rem;
 }
 
+/* Why there's nothing to show, when it's the browser keeping us out rather
+   than the page being quiet. Set apart from the verdict above it, which it
+   explains rather than continues. */
+.note {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-top: 0.35rem;
+    color: var(--footnote);
+}
+
 /* Tab strip across the top; sits on the same rule the footers use below. */
 #tabs {
     display: flex;

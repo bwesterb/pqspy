@@ -104,13 +104,16 @@ function fillJwt(sel, entries) {
     }
 }
 
-function updateJwts(list) {
+// instead is what to say in place of the count, for a page we never got to
+// look at: "No JWTs seen" would be true but would read as an answer.
+function updateJwts(list, instead) {
     list = list || [];
     const pq = list.filter(j => j.bucket === "pq");
     const nonpq = list.filter(j => j.bucket === "nonpq");
     const unknown = list.filter(j => j.bucket === "unknown");
 
-    const summary = list.length == 0
+    const summary = instead ? instead
+        : list.length == 0
         ? "No JWTs seen"
         : list.length + (list.length == 1 ? " JWT seen" : " JWTs seen");
     document.querySelector("#jwt-summary").innerText = summary;
@@ -120,12 +123,34 @@ function updateJwts(list) {
     fillJwt("#jwt-unknown", unknown);
 }
 
-function update(data, tabId) {
+// Explain a page we're not allowed to look at, in both panels, or clear the
+// explanation for one we are.
+function showNote(reason) {
+    for (const sel of ["#note", "#jwt-note"]) {
+        const el = document.querySelector(sel);
+        el.innerText = reason ? reason.detail : "";
+        el.classList.toggle("hidden", !reason);
+    }
+}
+
+function update(data, tab) {
     // Undefined for tabs the background script hasn't seen requests for,
     // for instance after it was restarted. The encryption fields can also be
     // absent while JWTs are present -- a tab whose only finding came from the
     // content script -- so fill in defaults per field rather than wholesale.
     data = data || {};
+
+    // On a page no extension may look at, whatever the background holds for
+    // this tab is about the page we came from: nothing resets it, because
+    // nothing is seen. Say why we have nothing instead of reporting the
+    // previous page's resources as though they were this one's. The background
+    // drops them too, on the same test, so this is belt and braces for the
+    // window between the navigation and its "complete".
+    const reason = PQSpyRestricted.reason(tab && tab.url);
+    if (reason)
+        data = { summary: reason.summary };
+    showNote(reason);
+
     data = Object.assign({
         summary: "No resources",
         pq: [], nonpq: [], unknown: [],
@@ -149,7 +174,7 @@ function update(data, tabId) {
     fill("#unknown", fresh(data.unknown));
     fill("#unknown-cached", cached(data.unknown));
 
-    updateJwts(data.jwts);
+    updateJwts(data.jwts, reason && reason.summary);
 }
 
 // Toggle which panel is shown. The verdict keeps updating in the background
@@ -170,20 +195,20 @@ function setupTabs() {
     }
 }
 
-async function activeTabId() {
+async function activeTab() {
     const tabs = await browser.tabs.query({
         active: true,
         currentWindow: true,
     });
-    return tabs[0].id;
+    return tabs[0];
 }
 
 async function pull() {
-    const tid = await activeTabId();
+    const tab = await activeTab();
     update(await browser.runtime.sendMessage({
         action: "pqspy",
-        tabId: tid,
-    }), tid);
+        tabId: tab.id,
+    }), tab);
 }
 
 // Ask the active tab's content script to re-read its storage and URL, and the
@@ -191,17 +216,19 @@ async function pull() {
 // reach), then pull the refreshed data. Run on popup open so the JWT view is
 // fresh without the user having to ask for it.
 async function rescan() {
-    const tabs = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-    });
-    const tid = tabs[0].id;
+    const tab = await activeTab();
+    const tid = tab.id;
+
+    // Nothing to rescan where we're not allowed to look, and pull() has
+    // already said so.
+    if (PQSpyRestricted.reason(tab.url))
+        return;
 
     // Cookies: handled in the background, which replies when done.
     const cookies = browser.runtime.sendMessage({
         action: "jwt-rescan-cookies",
         tabId: tid,
-        url: tabs[0].url,
+        url: tab.url,
     }).catch(() => {});
 
     // Storage and URL: handled by the content script. Its listener

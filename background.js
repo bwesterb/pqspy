@@ -485,6 +485,20 @@ browser.tabs.onRemoved.addListener(function(tid, info) {
 browser.tabs.onUpdated.addListener(function(tid, info, tab) {
     if (info.status !== "complete")
         return;
+
+    // A page we're not allowed to look at (addons.mozilla.org and the rest of
+    // Firefox's restricted domains) or that never came off the network reports
+    // nothing at all: no requests, no content script. What's in kexes[tid] is
+    // then still the page we came from -- only a main_frame request clears it,
+    // and none arrives here -- so drop it rather than let the icon and the
+    // popup vouch for this page on the strength of the last one.
+    if (tab && PQSpyRestricted.reason(tab.url)) {
+        delete kexes[tid];
+        delete jwts[tid];
+        showIcon(tid, "unk");
+        return;
+    }
+
     // Read the cookie jar once the page has settled, so cookie JWTs show up
     // without waiting for the next request to resend the Cookie header.
     if (tab && tab.url)
