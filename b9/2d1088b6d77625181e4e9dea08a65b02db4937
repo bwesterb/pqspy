@@ -1,0 +1,23 @@
+background.js
+  s_a519a453bdc771::t_b2ccbeb8acf44b 488-501
+manifest.json
+  s_a519a453bdc771::t_431dfd2b8b7c09 15
+popup.js
+  s_a519a453bdc771::t_1f56fe51063152 107-109,115-116,126-136,142-153,177,198,203,207,210-211,219-225,231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b92d1088b6d77625181e4e9dea08a65b02db4937",
+  "prompts": {},
+  "sessions": {
+    "s_a519a453bdc771": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ff0a877daffemAoDf39t37uDro",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Bas Westerbaan <bas@cloudflare.com>"
+    }
+  }
+}
