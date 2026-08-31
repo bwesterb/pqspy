@@ -65,7 +65,7 @@ function describe(s) {
 }
 
 // Render one bucket of JWTs. Mirrors fill() above, but the entries carry no
-// token -- only the identifier, algorithm, and where each was seen.
+// token -- only the identifier, algorithm, size, and where each was seen.
 function fillJwt(sel, entries) {
     document.querySelector(sel + " .counter").innerText = entries.length;
     document.querySelector(sel).classList.toggle("hidden", entries.length == 0);
@@ -79,9 +79,16 @@ function fillJwt(sel, entries) {
         let sid = document.createElement("span");
         sid.classList.add("jwt-id");
         sid.innerText = "#" + entry.id;
+        let ssize = document.createElement("span");
+        ssize.classList.add("jwt-size");
+        ssize.innerText = entry.size >= 1024
+            ? (entry.size / 1024).toFixed(1) + " KB"
+            : entry.size.toLocaleString() + " bytes";
         li.append(salg);
         li.appendChild(document.createTextNode(" "));
         li.append(sid);
+        li.appendChild(document.createTextNode(" "));
+        li.append(ssize);
 
         let locs = document.createElement("ul");
         locs.classList.add("jwt-locs");

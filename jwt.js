@@ -64,8 +64,8 @@ const PQSpyJWT = (function () {
         return src.slice(-8) || "unknown";
     }
 
-    // Decode a single candidate into { id, alg, bucket }, or null if it isn't
-    // actually a JWT. Requires a parseable header object carrying an "alg":
+    // Decode a single candidate into { id, alg, bucket, size }, or null if it
+    // isn't actually a JWT. Requires a parseable header object carrying an "alg":
     // that's what rules out random "eyJ..."-looking strings.
     function decode(token) {
         const parts = token.split(".");
@@ -90,7 +90,13 @@ const PQSpyJWT = (function () {
         if ("enc" in header)
             return null;
         const alg = String(header.alg);
-        return { id: identify(token), alg, bucket: classifySig(alg) };
+        return {
+            id: identify(token),
+            alg,
+            bucket: classifySig(alg),
+            // Compact JWTs are ASCII, so characters and encoded bytes coincide.
+            size: token.length,
+        };
     }
 
     // Pull every JWT out of an arbitrary string (a header value, cookie jar,

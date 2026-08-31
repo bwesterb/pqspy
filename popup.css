@@ -49,6 +49,10 @@ summary {
     color: var(--footnote);
 }
 
+.jwt-size {
+    color: var(--footnote);
+}
+
 /* The per-token location trails, nested under each JWT list item. */
 ul.jwt-locs {
     list-style: none;
