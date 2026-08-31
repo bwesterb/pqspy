@@ -1,0 +1,19 @@
+AGENTS.md
+  s_4d5326c61605cd::t_74dc806e13837c 1-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "92a7476acfae7571081662ac8f578b701a924275",
+  "prompts": {},
+  "sessions": {
+    "s_4d5326c61605cd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fa8385832ffe4qaCf9NtoZTE5N",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Bas Westerbaan <bas@cloudflare.com>"
+    }
+  }
+}
