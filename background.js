@@ -6,6 +6,16 @@
 // history, so there's every reason not to write them down.
 const kexes = {};
 
+// Certificate parsing is opt-in because requesting raw chains for every
+// response is considerably more work than the key-exchange check. Monitoring
+// is extension-wide and survives the popup closing; findings remain in memory
+// and are kept separately per tab.
+let certificateMonitoring = false;
+let certificateMonitoringGeneration = 0;
+const certificates = {};
+const certificatePages = {};
+const maxCertificateResources = 500;
+
 // JWTs seen per tab, kept in memory only for the same reasons as kexes above.
 // Keyed by tab id, each a Map from a token's identifier to its record, so the
 // same token seen many times (every request resends its Authorization header)
@@ -26,6 +36,73 @@ function freshJwts(tid) {
     if (!jwts[tid])
         jwts[tid] = new Map();
     return jwts[tid];
+}
+
+function freshCertificates(tid) {
+    if (!certificates[tid])
+        certificates[tid] = {
+            main: null,
+            pq: [],
+            nonpq: [],
+            unknown: [],
+            full: false,
+        };
+    return certificates[tid];
+}
+
+function resetCertificates(tid) {
+    delete certificates[tid];
+    // Object identity makes in-flight results from the previous page stale.
+    certificatePages[tid] = {};
+}
+
+// Parse immediately, then retain only display metadata. In particular rawDER
+// never leaves this function or crosses the extension message boundary.
+function recordCertificates(tid, info, details) {
+    const chain = info.certificates || [];
+    const data = freshCertificates(tid);
+    const total = data.pq.length + data.nonpq.length + data.unknown.length;
+    if (total >= maxCertificateResources) {
+        data.full = true;
+        return;
+    }
+
+    const parsed = chain.map(certificate =>
+        PQSpyCertificate.parse(certificate.rawDER));
+    const buckets = parsed.flatMap(certificate =>
+        [certificate.publicKeyBucket, certificate.bucket]);
+    let bucket;
+    if (buckets.includes("nonpq"))
+        bucket = "nonpq";
+    else if (buckets.length && buckets.every(value => value === "pq"))
+        bucket = "pq";
+    else
+        bucket = "unknown";
+
+    const algorithms = [...new Set(parsed.flatMap(certificate =>
+        [certificate.publicKey, certificate.signature]))];
+    const description = algorithms.length
+        ? algorithms.join(", ") : "unknown certificate chain";
+    data[bucket].push([
+        description,
+        details.type,
+        details.url,
+        details.fromCache,
+    ]);
+    if (details.type === "main_frame")
+        data.main = bucket;
+}
+
+function certificateResponse(tid) {
+    const data = certificates[tid];
+    return Object.assign({
+        monitoring: certificateMonitoring,
+        main: null,
+        pq: [],
+        nonpq: [],
+        unknown: [],
+        full: false,
+    }, data);
 }
 
 // How many distinct locations to keep per token before we stop adding more.
@@ -375,10 +452,19 @@ async function record(details) {
     if (details.type === "beacon")
         return;
 
+    const monitoringCertificates = certificateMonitoring;
+    const monitoringGeneration = certificateMonitoringGeneration;
+    const certificatePage = certificatePages[tid]
+        || (certificatePages[tid] = {});
     const info = await browser.webRequest.getSecurityInfo(
       details.requestId,
-      {},
+      monitoringCertificates ? { certificateChain: true, rawDER: true } : {},
     );
+    if (monitoringCertificates && certificateMonitoring
+        && monitoringGeneration === certificateMonitoringGeneration
+        && certificatePage === certificatePages[tid]
+        && info.state !== "insecure")
+        recordCertificates(tid, info, details);
     if (details.type === "main_frame" || !kexes[tid])
         kexes[tid] = {
             summary: null,
@@ -450,6 +536,14 @@ browser.webRequest.onHeadersReceived.addListener(logKex,
   ["blocking"]
 );
 
+// Reset synchronously at the start of a navigation. Any response still in
+// flight for the old page retains its old page token and is ignored by record.
+browser.webRequest.onBeforeRequest.addListener(function(details) {
+    resetCertificates(details.tabId);
+  },
+  {urls: ["*://*/*"], types: ["main_frame"]}
+);
+
 // Outgoing request headers carry the Authorization tokens. Read-only for our
 // purposes, but the listener still has to be registered blocking to be handed
 // requestHeaders.
@@ -477,6 +571,8 @@ browser.webRequest.onBeforeSendHeaders.addListener(function(details) {
 browser.tabs.onRemoved.addListener(function(tid, info) {
     delete kexes[tid];
     delete jwts[tid];
+    delete certificates[tid];
+    delete certificatePages[tid];
 });
 
 // The icon set while the main frame's headers were in flight gets dropped
@@ -496,6 +592,7 @@ browser.tabs.onUpdated.addListener(function(tid, info, tab) {
     if (tab && PQSpyRestricted.reason(tab.url)) {
         delete kexes[tid];
         delete jwts[tid];
+        resetCertificates(tid);
         showIcon(tid, "unk");
         return;
     }
@@ -517,8 +614,26 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Widen the encryption response with the tab's JWTs so the popup only
     // makes one round-trip. kexes[] may be undefined for an unseen tab; the
     // popup already copes with that.
-    sendResponse(Object.assign({ jwts: list }, data));
+    sendResponse(Object.assign({
+        jwts: list,
+        certificates: certificateResponse(message.tabId),
+    }, data));
     return;
+  }
+
+  // Popup-only controls: a content script must not be able to enable global
+  // certificate monitoring.
+  if (message.action === "certificate-monitor-start" && !sender.tab) {
+      certificateMonitoring = true;
+      certificateMonitoringGeneration++;
+      sendResponse(true);
+      return;
+  }
+  if (message.action === "certificate-monitor-stop" && !sender.tab) {
+      certificateMonitoring = false;
+      certificateMonitoringGeneration++;
+      sendResponse(true);
+      return;
   }
 
   // Findings from the content script (web storage and the URL fragment),

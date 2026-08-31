@@ -12,7 +12,7 @@
   },
   "permissions": ["tabs", "cookies", "webRequest", "webRequestBlocking", "<all_urls>"],
   "background": {
-    "scripts": [ "jwt.js", "restricted.js", "background.js" ]
+    "scripts": [ "jwt.js", "certificate.js", "restricted.js", "background.js" ]
   },
   "content_scripts": [
     {

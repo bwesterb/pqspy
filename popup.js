@@ -111,6 +111,68 @@ function fillJwt(sel, entries) {
     }
 }
 
+let certificateMonitoring = false;
+
+function updateCertificates(data, reason) {
+    data = Object.assign({
+        monitoring: false,
+        main: null,
+        pq: [], nonpq: [], unknown: [],
+        full: false,
+    }, data);
+    certificateMonitoring = data.monitoring;
+    const tab = document.querySelector("#tab-certificates");
+    tab.classList.toggle("monitor-off", !data.monitoring);
+    tab.classList.toggle("monitoring", data.monitoring);
+
+    let summary;
+    const pq = data.pq.length;
+    const nonpq = data.nonpq.length;
+    const unknown = data.unknown.length;
+    const total = pq + nonpq + unknown;
+    if (reason)
+        summary = reason.summary;
+    else if (!data.monitoring && total == 0)
+        summary = "Certificate monitoring is off";
+    else if (total == 0)
+        summary = "Monitoring; no resources observed yet";
+    else if (pq == 0 && nonpq == 0)
+        summary = "❓ unknown";
+    else if (pq == 0)
+        summary = "❌ not post-quantum authenticated";
+    else if (nonpq == 0 && unknown == 0 && data.main === "pq")
+        summary = "⚛️ post-quantum authenticated";
+    else if (nonpq == 0 && unknown == 0)
+        summary = "⚠️ page unknown; observed resources are post-quantum authenticated";
+    else
+        summary = "⚠️ partially post-quantum authenticated ("
+            + pq + "/" + total + ")";
+    document.querySelector("#certificate-summary").innerText = summary;
+    document.querySelector("#certificate-page").classList.toggle(
+        "hidden", data.main !== "nonpq");
+
+    let note = data.monitoring
+        ? ""
+        : "Monitoring is stopped; previously observed results remain listed.";
+    if (data.full)
+        note += " The 500-resource display limit has been reached.";
+    const noteElement = document.querySelector("#certificate-note");
+    noteElement.innerText = reason ? "" : note;
+    noteElement.classList.toggle("hidden", !!reason || !note);
+
+    const fresh = entries => entries.filter(entry => !entry[3]);
+    const cached = entries => entries.filter(entry => entry[3]);
+    fill("#certificate-pq", fresh(data.pq));
+    fill("#certificate-pq-cached", cached(data.pq));
+    fill("#certificate-not-pq", fresh(data.nonpq));
+    fill("#certificate-not-pq-cached", cached(data.nonpq));
+    fill("#certificate-unknown", fresh(data.unknown));
+    fill("#certificate-unknown-cached", cached(data.unknown));
+
+    const button = document.querySelector("#certificate-monitor");
+    button.innerText = data.monitoring ? "Stop monitoring" : "Start monitoring";
+}
+
 // instead is what to say in place of the count, for a page we never got to
 // look at: "No JWTs seen" would be true but would read as an answer.
 function updateJwts(list, instead) {
@@ -133,7 +195,7 @@ function updateJwts(list, instead) {
 // Explain a page we're not allowed to look at, in both panels, or clear the
 // explanation for one we are.
 function showNote(reason) {
-    for (const sel of ["#note", "#jwt-note"]) {
+    for (const sel of ["#note", "#jwt-note", "#certificate-restricted"]) {
         const el = document.querySelector(sel);
         el.innerText = reason ? reason.detail : "";
         el.classList.toggle("hidden", !reason);
@@ -154,8 +216,18 @@ function update(data, tab) {
     // drops them too, on the same test, so this is belt and braces for the
     // window between the navigation and its "complete".
     const reason = PQSpyRestricted.reason(tab && tab.url);
-    if (reason)
-        data = { summary: reason.summary };
+    if (reason) {
+        data = {
+            summary: reason.summary,
+            certificates: {
+                monitoring: !!(data.certificates
+                    && data.certificates.monitoring),
+                main: null,
+                pq: [], nonpq: [], unknown: [],
+                full: false,
+            },
+        };
+    }
     showNote(reason);
 
     data = Object.assign({
@@ -182,24 +254,42 @@ function update(data, tab) {
     fill("#unknown-cached", cached(data.unknown));
 
     updateJwts(data.jwts, reason && reason.summary);
+    updateCertificates(data.certificates, reason);
 }
 
 // Toggle which panel is shown. The verdict keeps updating in the background
 // either way; only its visibility changes.
 function setupTabs() {
     const tabs = document.querySelectorAll(".tab");
+    function select(tab) {
+        for (const other of tabs) {
+            const on = other === tab;
+            other.classList.toggle("active", on);
+            other.setAttribute("aria-selected", on);
+            document.getElementById(other.getAttribute("aria-controls"))
+                .classList.toggle("hidden", !on);
+        }
+    }
     for (const tab of tabs) {
         tab.addEventListener("click", () => {
-            for (const other of tabs) {
-                const on = other === tab;
-                other.classList.toggle("active", on);
-                other.setAttribute("aria-selected", on);
-                document.getElementById(
-                    other.getAttribute("aria-controls"))
-                    .classList.toggle("hidden", !on);
-            }
+            select(tab);
+            localStorage.setItem("pqspy-panel", tab.id);
+            if (tab.id === "tab-certificates" && !certificateMonitoring)
+                setCertificateMonitoring(true);
         });
     }
+    const remembered = document.getElementById(
+        localStorage.getItem("pqspy-panel"));
+    if (remembered && remembered.classList.contains("tab"))
+        select(remembered);
+}
+
+async function setCertificateMonitoring(enabled) {
+    await browser.runtime.sendMessage({
+        action: enabled
+            ? "certificate-monitor-start" : "certificate-monitor-stop",
+    });
+    await pull();
 }
 
 async function activeTab() {
@@ -254,6 +344,8 @@ async function rescan() {
 }
 
 setupTabs();
+document.querySelector("#certificate-monitor").addEventListener("click", () =>
+    setCertificateMonitoring(!certificateMonitoring));
 // Paint immediately from what the background already has, then kick off a
 // rescan whose own pull() lands a moment later with fresh storage/URL/cookies.
 pull();

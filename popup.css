@@ -44,6 +44,11 @@ summary {
     font-weight: 600;
 }
 
+#certificate-summary {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
 .jwt-id {
     font-family: monospace;
     color: var(--footnote);
@@ -95,7 +100,7 @@ li .url:hover {
     font-family: monospace;
 }
 
-#page {
+#page, #certificate-page {
     font-size: 0.9rem;
     line-height: 1.4;
     margin-bottom: 0.5rem;
@@ -137,7 +142,25 @@ li .url:hover {
     border-bottom-color: var(--text);
 }
 
-#caveat, #jwt-caveat {
+#tab-certificates.monitoring {
+    color: var(--text);
+}
+
+#tab-certificates.monitor-off {
+    color: var(--footnote);
+    font-weight: normal;
+}
+
+#certificate-controls {
+    margin-top: 0.75rem;
+}
+
+#certificate-monitor {
+    font: inherit;
+    font-size: 0.85rem;
+}
+
+#caveat, #jwt-caveat, #certificate-caveat {
     font-size: 0.8rem;
     line-height: 1.4;
     margin-top: 1rem;
@@ -156,7 +179,7 @@ li .url:hover {
 
 /* Inherited rather than the default link blue, which is unreadable on the
    dark background. */
-#caveat a, #jwt-caveat a {
+#caveat a, #jwt-caveat a, #certificate-caveat a {
     color: inherit;
     text-decoration: underline;
 }

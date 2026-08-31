@@ -12,7 +12,10 @@
       <button id="tab-encryption" class="tab active" role="tab"
               aria-selected="true" aria-controls="panel-encryption">Encryption</button>
       <button id="tab-jwts" class="tab" role="tab"
-              aria-selected="false" aria-controls="panel-jwts">JWTs</button>
+               aria-selected="false" aria-controls="panel-jwts">JWTs</button>
+      <button id="tab-certificates" class="tab monitor-off" role="tab"
+              aria-selected="false"
+              aria-controls="panel-certificates">Certificates</button>
       </div>
 
       <section id="panel-encryption" class="panel" role="tabpanel"
@@ -54,10 +57,9 @@
       <footer id="caveat">
       This tool reports on post-quantum encryption to counter
       <a href="https://en.wikipedia.org/wiki/Harvest_now,_decrypt_later"
-         target="_blank">harvest-now/decrypt-later</a>; it doesn't check
-      whether authentication (certificates) are quantum secure,
-      <a href="https://github.com/bwesterb/pqspy/issues/4"
-         target="_blank">yet</a>.
+         target="_blank">harvest-now/decrypt-later</a>. Its verdict covers
+      connection encryption; certificate authentication is reported separately
+      in the Certificates tab.
       </footer>
       </section>
 
@@ -88,6 +90,52 @@
       <a href="https://en.wikipedia.org/wiki/JSON_Web_Token"
          target="_blank">JSON Web Tokens</a> seen in this tab's request
       headers, cookies, URL, and web storage.
+      </footer>
+      </section>
+
+      <section id="panel-certificates" class="panel hidden" role="tabpanel"
+               aria-labelledby="tab-certificates">
+      <div id="certificate-summary">Certificate monitoring is off</div>
+      <div id="certificate-restricted" class="note hidden"></div>
+      <div id="certificate-note" class="note"></div>
+      <div id="certificate-page" class="hidden">❌ the page itself is not post-quantum authenticated</div>
+
+      <details id="certificate-not-pq" class="hidden">
+      <summary><span class="counter">?</span> ❌ not post-quantum authenticated</summary>
+      <ul></ul>
+      </details>
+
+      <details id="certificate-not-pq-cached" class="cached hidden">
+      <summary><span class="counter">?</span> ❌ not post-quantum authenticated, from cache</summary>
+      <ul></ul>
+      </details>
+
+      <details id="certificate-unknown" class="hidden">
+      <summary><span class="counter">?</span> ❓ unknown</summary>
+      <ul></ul>
+      </details>
+
+      <details id="certificate-unknown-cached" class="cached hidden">
+      <summary><span class="counter">?</span> ❓ unknown, from cache</summary>
+      <ul></ul>
+      </details>
+
+      <details id="certificate-pq" class="hidden">
+      <summary><span class="counter">?</span> ⚛️ post-quantum authenticated</summary>
+      <ul></ul>
+      </details>
+
+      <details id="certificate-pq-cached" class="cached hidden">
+      <summary><span class="counter">?</span> ⚛️ post-quantum authenticated, from cache</summary>
+      <ul></ul>
+      </details>
+
+      <div id="certificate-controls">
+        <button id="certificate-monitor">Start monitoring</button>
+      </div>
+      <footer id="certificate-caveat">
+      A resource is post-quantum only if every public key and certificate
+      signature in its chain is recognized as post-quantum.
       </footer>
       </section>
 
