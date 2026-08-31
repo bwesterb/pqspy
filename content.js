@@ -3,8 +3,8 @@
 // Runs in the page to reach the two places the background can't see: web
 // storage and the URL fragment (the part after #, which is never sent to the
 // server). Tokens are decoded here via the shared jwt.js and only their
-// identifier, algorithm, and location are sent on -- the token itself never
-// leaves the page.
+// identifier, algorithm, size, and location are sent on -- the token itself
+// never leaves the page.
 (function () {
     function report(found) {
         if (!found.length)
@@ -37,6 +37,7 @@
             // The key itself occasionally holds the token, so scan both.
             for (const jwt of PQSpyJWT.scan(key + " " + value))
                 found.push({ id: jwt.id, alg: jwt.alg, bucket: jwt.bucket,
+                             size: jwt.size,
                              source, where: key, url: location.href });
         }
     }
@@ -52,6 +53,7 @@
         for (const [where, text] of parts)
             for (const jwt of PQSpyJWT.scan(text))
                 found.push({ id: jwt.id, alg: jwt.alg, bucket: jwt.bucket,
+                             size: jwt.size,
                              source: "url", where, url: location.href });
     }
 

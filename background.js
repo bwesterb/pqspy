@@ -60,7 +60,7 @@ function pathOf(url) {
 
 // Fold a found token into the tab's map, adding where it was seen to an
 // existing record rather than listing the same token twice. Only the
-// identifier, algorithm, bucket, and locations are kept -- never the token.
+// identifier, algorithm, bucket, size, and locations are kept -- never the token.
 // A location carries enough to point the user at it in DevTools: the source
 // kind, the header/cookie/storage name (where), and the request or page URL.
 //
@@ -78,6 +78,7 @@ function recordJwt(tid, jwt, loc) {
             id: jwt.id,
             alg: jwt.alg,
             bucket: jwt.bucket,
+            size: jwt.size,
             sources: [],
             more: false,
         };
@@ -527,7 +528,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     for (const f of message.found || []) {
         if (f && f.id && f.alg)
             recordJwt(sender.tab.id,
-                { id: f.id, alg: f.alg, bucket: f.bucket },
+                { id: f.id, alg: f.alg, bucket: f.bucket, size: f.size },
                 { source: f.source, where: f.where, url: f.url });
     }
   }
