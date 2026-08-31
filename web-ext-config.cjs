@@ -1,6 +1,6 @@
 // Build tooling shouldn't end up inside the add-on itself. node_modules and
 // *.zip are ignored by web-ext already.
-const ignoreFiles = ['package.json', 'package-lock.json', 'release.sh', 'web-ext-config.cjs'];
+const ignoreFiles = ['package.json', 'package-lock.json', 'web-ext-config.cjs'];
 
 // Neither should anything git doesn't track: scratch files, local repros and
 // the like would otherwise be packaged up and shipped along.
